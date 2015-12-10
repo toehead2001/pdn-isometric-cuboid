@@ -91,7 +91,9 @@ namespace IsometricCuboidEffect
             Amount3,
             Amount4,
             Amount5,
-            Amount6
+            Amount6,
+            Amount7,
+            Amount8
         }
 
 
@@ -105,6 +107,8 @@ namespace IsometricCuboidEffect
             props.Add(new BooleanProperty(PropertyNames.Amount4, false));
             props.Add(new BooleanProperty(PropertyNames.Amount5, false));
             props.Add(new DoubleVectorProperty(PropertyNames.Amount6, Pair.Create(0.0, 0.0), Pair.Create(-1.0, -1.0), Pair.Create(+1.0, +1.0)));
+            props.Add(new Int32Property(PropertyNames.Amount7, 2, 1, 10));
+            props.Add(new Int32Property(PropertyNames.Amount8, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.PrimaryColor.B, EnvironmentParameters.PrimaryColor.G, EnvironmentParameters.PrimaryColor.R, 255)), 0, 0xffffff));
 
             return new PropertyCollection(props);
         }
@@ -131,6 +135,9 @@ namespace IsometricCuboidEffect
             Rectangle selection6 = EnvironmentParameters.GetSelection(EnvironmentParameters.SourceSurface.Bounds).GetBoundsInt();
             ImageResource imageResource6 = ImageResource.FromImage(EnvironmentParameters.SourceSurface.CreateAliasedBitmap(selection6));
             configUI.SetPropertyControlValue(PropertyNames.Amount6, ControlInfoPropertyNames.StaticImageUnderlay, imageResource6);
+            configUI.SetPropertyControlValue(PropertyNames.Amount7, ControlInfoPropertyNames.DisplayName, "Line Width");
+            configUI.SetPropertyControlValue(PropertyNames.Amount8, ControlInfoPropertyNames.DisplayName, "Line Color");
+            configUI.SetPropertyControlType(PropertyNames.Amount8, PropertyControlType.ColorWheel);
 
             return configUI;
         }
@@ -143,6 +150,8 @@ namespace IsometricCuboidEffect
             Amount4 = newToken.GetProperty<BooleanProperty>(PropertyNames.Amount4).Value;
             Amount5 = newToken.GetProperty<BooleanProperty>(PropertyNames.Amount5).Value;
             Amount6 = newToken.GetProperty<DoubleVectorProperty>(PropertyNames.Amount6).Value;
+            Amount7 = newToken.GetProperty<Int32Property>(PropertyNames.Amount7).Value;
+            Amount8 = ColorBgra.FromOpaqueInt32(newToken.GetProperty<Int32Property>(PropertyNames.Amount8).Value);
 
 
             Rectangle selection = EnvironmentParameters.GetSelection(srcArgs.Surface.Bounds).GetBoundsInt();
@@ -172,7 +181,7 @@ namespace IsometricCuboidEffect
             Graphics cuboidGraphics = Graphics.FromImage(cuboidBitmap);
             cuboidGraphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-            Pen cuboidPen = new Pen(Color.Black, 2);
+            Pen cuboidPen = new Pen(Amount8, Amount7);
             cuboidPen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
             cuboidPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
 
@@ -268,6 +277,8 @@ namespace IsometricCuboidEffect
         bool Amount4 = false; // [0,1] Draw Back Edges
         bool Amount5 = false; // [0,1] Draw Perspective Dimensions
         Pair<double, double> Amount6 = Pair.Create(0.0, 0.0); // Offset
+        int Amount7 = 2; // Line Width
+        ColorBgra Amount8 = ColorBgra.FromBgr(0, 0, 0); // Line Color
         #endregion
 
         Surface cuboidSurface;
