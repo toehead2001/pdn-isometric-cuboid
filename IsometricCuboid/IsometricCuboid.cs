@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Drawing.Text;
 using System.Collections.Generic;
@@ -96,7 +97,8 @@ namespace IsometricCuboidEffect
             Amount8,
             Amount9,
             Amount10,
-            Amount11
+            Amount11,
+            Amount12
         }
 
         public enum Amount9Options
@@ -128,6 +130,7 @@ namespace IsometricCuboidEffect
             props.Add(StaticListChoiceProperty.CreateForEnum<Amount10Options>(PropertyNames.Amount10, 0, false));
             props.Add(new Int32Property(PropertyNames.Amount11, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.SecondaryColor.B, EnvironmentParameters.SecondaryColor.G, EnvironmentParameters.SecondaryColor.R, 255)), 0, 0xffffff));
             props.Add(new DoubleVectorProperty(PropertyNames.Amount6, Pair.Create(0.0, 0.0), Pair.Create(-1.0, -1.0), Pair.Create(+1.0, +1.0)));
+            props.Add(new BooleanProperty(PropertyNames.Amount12, true));
 
             List<PropertyCollectionRule> propRules = new List<PropertyCollectionRule>();
             propRules.Add(new ReadOnlyBoundToValueRule<object, StaticListChoiceProperty>(PropertyNames.Amount11, PropertyNames.Amount10, Amount10Options.Amount10Option1, false));
@@ -173,6 +176,8 @@ namespace IsometricCuboidEffect
             Amount10Control.SetValueDisplayName(Amount10Options.Amount10Option3, "Shaded");
             configUI.SetPropertyControlValue(PropertyNames.Amount11, ControlInfoPropertyNames.DisplayName, "Fill Color");
             configUI.SetPropertyControlType(PropertyNames.Amount11, PropertyControlType.ColorWheel);
+            configUI.SetPropertyControlValue(PropertyNames.Amount12, ControlInfoPropertyNames.DisplayName, "Misc");
+            configUI.SetPropertyControlValue(PropertyNames.Amount12, ControlInfoPropertyNames.Description, "Anti-aliasing");
 
             return configUI;
         }
@@ -190,6 +195,7 @@ namespace IsometricCuboidEffect
             Amount9 = (byte)((int)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.Amount9).Value);
             Amount10 = (byte)((int)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.Amount10).Value);
             Amount11 = ColorBgra.FromOpaqueInt32(newToken.GetProperty<Int32Property>(PropertyNames.Amount11).Value);
+            Amount12 = newToken.GetProperty<BooleanProperty>(PropertyNames.Amount12).Value;
 
 
             Rectangle selection = EnvironmentParameters.GetSelection(srcArgs.Surface.Bounds).GetBoundsInt();
@@ -247,16 +253,16 @@ namespace IsometricCuboidEffect
             // Drawing Resources
             Bitmap cuboidBitmap = new Bitmap(selection.Width, selection.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             Graphics cuboidGraphics = Graphics.FromImage(cuboidBitmap);
-            cuboidGraphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            cuboidGraphics.SmoothingMode = Amount12 ? SmoothingMode.AntiAlias : SmoothingMode.None;
 
             Pen cuboidPen = new Pen(Amount8, Amount7);
-            cuboidPen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
-            cuboidPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+            cuboidPen.StartCap = LineCap.Round;
+            cuboidPen.EndCap = LineCap.Round;
 
             Pen hiddenPen = new Pen(Amount8, Amount7);
-            hiddenPen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
-            hiddenPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-            hiddenPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
+            hiddenPen.StartCap = LineCap.Round;
+            hiddenPen.EndCap = LineCap.Round;
+            hiddenPen.DashStyle = DashStyle.Dot;
 
 
             SolidBrush fillBrushSolid = new SolidBrush(Amount11);
@@ -438,9 +444,11 @@ namespace IsometricCuboidEffect
                         break;
                 }
 
+                cuboidGraphics.SmoothingMode = SmoothingMode.AntiAlias;
+
                 Pen dimPen = new Pen(Color.Red, 1);
-                dimPen.StartCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
-                dimPen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                dimPen.StartCap = LineCap.ArrowAnchor;
+                dimPen.EndCap = LineCap.ArrowAnchor;
 
                 PointF heightTop = new PointF(baseX - lx - 10, baseY - objectHeight);
                 PointF heightBottom = new PointF(baseX - lx - 10, baseY);
@@ -495,6 +503,7 @@ namespace IsometricCuboidEffect
         byte Amount9 = 0; // Shape|Cuboid|Pyramid
         byte Amount10 = 0; // Fill|None|Solid|Shaded
         ColorBgra Amount11 = ColorBgra.FromBgr(0, 0, 0); // Fill Color
+        bool Amount12 = true; // [0,1] Anti-aliasing
         #endregion
 
         Surface cuboidSurface;
