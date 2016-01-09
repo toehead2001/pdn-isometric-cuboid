@@ -221,7 +221,7 @@ namespace IsometricCuboidEffect
                     baseY = selection.Height - (selection.Height - ly - ry - Amount1) / 2f;
                     break;
                 case 1: // Pyramid
-                    float pyraHeight = (ly / 2 + ry / 2 + Amount1) > (ry + ly) ? (ly / 2 + ry / 2 + Amount1) : (ry + ly);
+                    float pyraHeight = Math.Max(ly / 2 + ry / 2 + Amount1, ry + ly);
                     baseY = selection.Height - (selection.Height - pyraHeight) / 2f;
                     break;
                 default:
@@ -264,24 +264,21 @@ namespace IsometricCuboidEffect
             hiddenPen.EndCap = LineCap.Round;
             hiddenPen.DashStyle = DashStyle.Dot;
 
+            SolidBrush fillBrush = new SolidBrush(Color.Transparent);
 
-            SolidBrush fillBrushSolid = new SolidBrush(Amount11);
+            Color fillColorSolid = Amount11;
 
             HsvColor fillColorBase = HsvColor.FromColor(Amount11);
             fillColorBase.Saturation = 100;
-            SolidBrush fillBrushBase = new SolidBrush(fillColorBase.ToColor());
 
             HsvColor fillColorDark = fillColorBase;
             fillColorDark.Value = 80;
-            SolidBrush fillBrushDark = new SolidBrush(fillColorDark.ToColor());
 
             HsvColor fillColorLight = fillColorBase;
             fillColorLight.Saturation = 66;
-            SolidBrush fillBrushLight = new SolidBrush(fillColorLight.ToColor());
 
             HsvColor fillColorLighter = fillColorBase;
             fillColorLighter.Saturation = 33;
-            SolidBrush fillBrushLighter = new SolidBrush(fillColorLighter.ToColor());
 
 
             // Shapes
@@ -295,18 +292,23 @@ namespace IsometricCuboidEffect
                         case 0: // None
                             break;
                         case 1: // Solid
+                            fillBrush.Color = fillColorSolid;
+
                             PointF[] solidFillPoints = { frontBottom, leftBottom, leftTop, backTop, rightTop, rightBottom };
-                            cuboidGraphics.FillPolygon(fillBrushSolid, solidFillPoints);
+                            cuboidGraphics.FillPolygon(fillBrush, solidFillPoints);
                             break;
                         case 2: // Shaded
+                            fillBrush.Color = fillColorLight.ToColor();
                             PointF[] topFillPoints = { frontTop, leftTop, backTop, rightTop };
-                            cuboidGraphics.FillPolygon(fillBrushLight, topFillPoints);
+                            cuboidGraphics.FillPolygon(fillBrush, topFillPoints);
 
+                            fillBrush.Color = fillColorBase.ToColor();
                             PointF[] leftFillPoints = { frontBottom, leftBottom, leftTop, frontTop };
-                            cuboidGraphics.FillPolygon(fillBrushBase, leftFillPoints);
+                            cuboidGraphics.FillPolygon(fillBrush, leftFillPoints);
 
+                            fillBrush.Color = fillColorDark.ToColor();
                             PointF[] rightFillPoints = { frontBottom, rightBottom, rightTop, frontTop };
-                            cuboidGraphics.FillPolygon(fillBrushDark, rightFillPoints);
+                            cuboidGraphics.FillPolygon(fillBrush, rightFillPoints);
                             break;
                     }
 
@@ -357,39 +359,45 @@ namespace IsometricCuboidEffect
                         case 0: // None
                             break;
                         case 1: // Solid
+                            fillBrush.Color = fillColorSolid;
+
                             PointF[] solidFillPoints = { frontBottom, leftBottom, baseCenterTop, rightBottom };
-                            cuboidGraphics.FillPolygon(fillBrushSolid, solidFillPoints);
+                            cuboidGraphics.FillPolygon(fillBrush, solidFillPoints);
 
                             if (helperAngle1 < 30)
                             {
                                 PointF[] solidFillPointsBL = { leftBottom, baseCenterTop, backBottom };
-                                cuboidGraphics.FillPolygon(fillBrushSolid, solidFillPointsBL);
+                                cuboidGraphics.FillPolygon(fillBrush, solidFillPointsBL);
                             }
 
                             if (helperAngle2 < 30)
                             {
                                 PointF[] solidFillPointsBR = { rightBottom, baseCenterTop, backBottom };
-                                cuboidGraphics.FillPolygon(fillBrushSolid, solidFillPointsBR);
+                                cuboidGraphics.FillPolygon(fillBrush, solidFillPointsBR);
                             }
 
                             break;
                         case 2: // Shaded
+                            fillBrush.Color = fillColorBase.ToColor();
                             PointF[] leftFrontFillPoints = { frontBottom, leftBottom, baseCenterTop };
-                            cuboidGraphics.FillPolygon(fillBrushBase, leftFrontFillPoints);
+                            cuboidGraphics.FillPolygon(fillBrush, leftFrontFillPoints);
 
+                            fillBrush.Color = fillColorDark.ToColor();
                             PointF[] rightFrontFillPoints = { frontBottom, rightBottom, baseCenterTop };
-                            cuboidGraphics.FillPolygon(fillBrushDark, rightFrontFillPoints);
+                            cuboidGraphics.FillPolygon(fillBrush, rightFrontFillPoints);
 
                             if (helperAngle1 < 30)
                             {
+                                fillBrush.Color = fillColorLighter.ToColor();
                                 PointF[] solidFillPointsBL = { leftBottom, baseCenterTop, backBottom };
-                                cuboidGraphics.FillPolygon(fillBrushLighter, solidFillPointsBL);
+                                cuboidGraphics.FillPolygon(fillBrush, solidFillPointsBL);
                             }
 
                             if (helperAngle2 < 30)
                             {
+                                fillBrush.Color = fillColorLight.ToColor();
                                 PointF[] solidFillPointsBR = { rightBottom, baseCenterTop, backBottom };
-                                cuboidGraphics.FillPolygon(fillBrushLight, solidFillPointsBR);
+                                cuboidGraphics.FillPolygon(fillBrush, solidFillPointsBR);
                             }
 
                             break;
@@ -426,6 +434,7 @@ namespace IsometricCuboidEffect
 
             cuboidPen.Dispose();
             hiddenPen.Dispose();
+            fillBrush.Dispose();
 
             if (Amount5)
             {
@@ -437,7 +446,7 @@ namespace IsometricCuboidEffect
                         objectHeight = (int)(ly + ry + Amount1);
                         break;
                     case 1:
-                        objectHeight = (int)((ly / 2 + ry / 2 + Amount1) > (ry + ly) ? (ly / 2 + ry / 2 + Amount1) : (ry + ly));
+                        objectHeight = (int)Math.Max(ly / 2 + ry / 2 + Amount1, ry + ly);
                         break;
                     default:
                         objectHeight = (int)(ly + ry + Amount1);
@@ -452,13 +461,12 @@ namespace IsometricCuboidEffect
 
                 PointF heightTop = new PointF(baseX - lx - 10, baseY - objectHeight);
                 PointF heightBottom = new PointF(baseX - lx - 10, baseY);
-
                 cuboidGraphics.DrawLine(dimPen, heightTop, heightBottom);
 
                 PointF widthLeft = new PointF(baseX - lx, baseY - objectHeight - 10);
                 PointF widthRight = new PointF(baseX + rx, baseY - objectHeight - 10);
-
                 cuboidGraphics.DrawLine(dimPen, widthLeft, widthRight);
+
                 dimPen.Dispose();
 
                 cuboidGraphics.TextRenderingHint = TextRenderingHint.AntiAlias;
