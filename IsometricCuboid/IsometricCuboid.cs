@@ -13,79 +13,24 @@ namespace IsometricCuboidEffect
 {
     public class PluginSupportInfo : IPluginSupportInfo
     {
-        public string Author
-        {
-            get
-            {
-                return ((AssemblyCopyrightAttribute)base.GetType().Assembly.GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false)[0]).Copyright;
-            }
-        }
-        public string Copyright
-        {
-            get
-            {
-                return ((AssemblyDescriptionAttribute)base.GetType().Assembly.GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false)[0]).Description;
-            }
-        }
-
-        public string DisplayName
-        {
-            get
-            {
-                return ((AssemblyProductAttribute)base.GetType().Assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false)[0]).Product;
-            }
-        }
-
-        public Version Version
-        {
-            get
-            {
-                return base.GetType().Assembly.GetName().Version;
-            }
-        }
-
-        public Uri WebsiteUri
-        {
-            get
-            {
-                return new Uri("http://www.getpaint.net/redirect/plugins.html");
-            }
-        }
+        public string Author => base.GetType().Assembly.GetCustomAttribute<AssemblyCopyrightAttribute>().Copyright;
+        public string Copyright => base.GetType().Assembly.GetCustomAttribute<AssemblyDescriptionAttribute>().Description;
+        public string DisplayName => base.GetType().Assembly.GetCustomAttribute<AssemblyProductAttribute>().Product;
+        public Version Version => base.GetType().Assembly.GetName().Version;
+        public Uri WebsiteUri => new Uri("https://forums.getpaint.net/index.php?showtopic=82358");
     }
 
-    [PluginSupportInfo(typeof(PluginSupportInfo), DisplayName = "Isometric Cuboid")]
+    [PluginSupportInfo(typeof(PluginSupportInfo))]
     public class IsometricCuboidEffectPlugin : PropertyBasedEffect
     {
-        public static string StaticName
-        {
-            get
-            {
-                return "Isometric Cuboid";
-            }
-        }
-
-        public static Image StaticIcon
-        {
-            get
-            {
-                return new Bitmap(typeof(IsometricCuboidEffectPlugin), "IsometricCuboid.png");
-            }
-        }
-
-        public static string SubmenuName
-        {
-            get
-            {
-                return SubmenuNames.Render;  // Programmer's chosen default
-            }
-        }
+        private static readonly Image StaticIcon = new Bitmap(typeof(IsometricCuboidEffectPlugin), "IsometricCuboid.png");
 
         public IsometricCuboidEffectPlugin()
-            : base(StaticName, StaticIcon, SubmenuName, EffectFlags.Configurable)
+            : base("Isometric Cuboid", StaticIcon, SubmenuNames.Render, EffectFlags.Configurable)
         {
         }
 
-        public enum PropertyNames
+        private enum PropertyNames
         {
             Amount1,
             Amount2,
@@ -101,41 +46,43 @@ namespace IsometricCuboidEffect
             Amount12
         }
 
-        public enum Amount9Options
+        private enum Amount9Options
         {
             Amount9Option1,
             Amount9Option2
         }
 
-        public enum Amount10Options
+        private enum Amount10Options
         {
             Amount10Option1,
             Amount10Option2,
             Amount10Option3
         }
 
-
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
+            List<Property> props = new List<Property>
+            {
+                new Int32Property(PropertyNames.Amount1, 175, 0, 1000),
+                new Int32Property(PropertyNames.Amount2, 150, 0, 1000),
+                new Int32Property(PropertyNames.Amount3, 200, 0, 1000),
+                new BooleanProperty(PropertyNames.Amount5, false),
+                StaticListChoiceProperty.CreateForEnum<Amount9Options>(PropertyNames.Amount9, 0, false),
+                new Int32Property(PropertyNames.Amount7, 2, 0, 10),
+                new BooleanProperty(PropertyNames.Amount4, false),
+                new Int32Property(PropertyNames.Amount8, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.PrimaryColor.B, EnvironmentParameters.PrimaryColor.G, EnvironmentParameters.PrimaryColor.R, 255)), 0, 0xffffff),
+                StaticListChoiceProperty.CreateForEnum<Amount10Options>(PropertyNames.Amount10, 0, false),
+                new Int32Property(PropertyNames.Amount11, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.SecondaryColor.B, EnvironmentParameters.SecondaryColor.G, EnvironmentParameters.SecondaryColor.R, 255)), 0, 0xffffff),
+                new DoubleVectorProperty(PropertyNames.Amount6, Pair.Create(0.0, 0.0), Pair.Create(-1.0, -1.0), Pair.Create(+1.0, +1.0)),
+                new BooleanProperty(PropertyNames.Amount12, true)
+            };
 
-            props.Add(new Int32Property(PropertyNames.Amount1, 175, 0, 1000));
-            props.Add(new Int32Property(PropertyNames.Amount2, 150, 0, 1000));
-            props.Add(new Int32Property(PropertyNames.Amount3, 200, 0, 1000));
-            props.Add(new BooleanProperty(PropertyNames.Amount5, false));
-            props.Add(StaticListChoiceProperty.CreateForEnum<Amount9Options>(PropertyNames.Amount9, 0, false));
-            props.Add(new Int32Property(PropertyNames.Amount7, 2, 0, 10));
-            props.Add(new BooleanProperty(PropertyNames.Amount4, false));
-            props.Add(new Int32Property(PropertyNames.Amount8, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.PrimaryColor.B, EnvironmentParameters.PrimaryColor.G, EnvironmentParameters.PrimaryColor.R, 255)), 0, 0xffffff));
-            props.Add(StaticListChoiceProperty.CreateForEnum<Amount10Options>(PropertyNames.Amount10, 0, false));
-            props.Add(new Int32Property(PropertyNames.Amount11, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.SecondaryColor.B, EnvironmentParameters.SecondaryColor.G, EnvironmentParameters.SecondaryColor.R, 255)), 0, 0xffffff));
-            props.Add(new DoubleVectorProperty(PropertyNames.Amount6, Pair.Create(0.0, 0.0), Pair.Create(-1.0, -1.0), Pair.Create(+1.0, +1.0)));
-            props.Add(new BooleanProperty(PropertyNames.Amount12, true));
-
-            List<PropertyCollectionRule> propRules = new List<PropertyCollectionRule>();
-            propRules.Add(new ReadOnlyBoundToValueRule<object, StaticListChoiceProperty>(PropertyNames.Amount11, PropertyNames.Amount10, Amount10Options.Amount10Option1, false));
-            propRules.Add(new ReadOnlyBoundToValueRule<int, Int32Property>(PropertyNames.Amount8, PropertyNames.Amount7, 0, false));
-            propRules.Add(new ReadOnlyBoundToValueRule<int, Int32Property>(PropertyNames.Amount4, PropertyNames.Amount7, 0, false));
+            List<PropertyCollectionRule> propRules = new List<PropertyCollectionRule>
+            {
+                new ReadOnlyBoundToValueRule<object, StaticListChoiceProperty>(PropertyNames.Amount11, PropertyNames.Amount10, Amount10Options.Amount10Option1, false),
+                new ReadOnlyBoundToValueRule<int, Int32Property>(PropertyNames.Amount8, PropertyNames.Amount7, 0, false),
+                new ReadOnlyBoundToValueRule<int, Int32Property>(PropertyNames.Amount4, PropertyNames.Amount7, 0, false)
+            };
 
             return new PropertyCollection(props, propRules);
         }
@@ -197,72 +144,81 @@ namespace IsometricCuboidEffect
             Amount11 = ColorBgra.FromOpaqueInt32(newToken.GetProperty<Int32Property>(PropertyNames.Amount11).Value);
             Amount12 = newToken.GetProperty<BooleanProperty>(PropertyNames.Amount12).Value;
 
-
-            Rectangle selection = EnvironmentParameters.GetSelection(srcArgs.Surface.Bounds).GetBoundsInt();
-            float centerX = selection.Width / 2f;
+            Size selSize = EnvironmentParameters.GetSelection(srcArgs.Surface.Bounds).GetBoundsInt().Size;
+            float centerX = selSize.Width / 2f;
 
             // Convert degrees into radians
-            double rad30 = Math.PI / 180 * 30;
-            double rad60 = Math.PI / 180 * 60;
-            double rad90 = Math.PI / 180 * 90;
+            const double rad30 = Math.PI / 180 * 30;
+            const double rad60 = Math.PI / 180 * 60;
 
-            // The 'Law of Sines'
-            float lx = (float)(Amount2 * Math.Sin(rad60) / Math.Sin(rad90));
-            float rx = (float)(Amount3 * Math.Sin(rad60) / Math.Sin(rad90));
-            float ly = (float)(Amount2 * Math.Sin(rad30) / Math.Sin(rad90));
-            float ry = (float)(Amount3 * Math.Sin(rad30) / Math.Sin(rad90));
+            SizeF leftLengths = new SizeF
+            {
+                Width = (float)(Amount2 * Math.Sin(rad60)),
+                Height = (float)(Amount2 * Math.Sin(rad30))
+            };
+            SizeF rightLengths = new SizeF
+            {
+                Width = (float)(Amount3 * Math.Sin(rad60)),
+                Height = (float)(Amount3 * Math.Sin(rad30))
+            };
 
             // Allows the cuboid to be centered
-            float baseX = (centerX - (rx - lx) / 2f);
-            float baseY;
+            PointF basePoint = new PointF
+            {
+                X = (centerX - (rightLengths.Width - leftLengths.Width) / 2f),
+                Y = 0
+            };
             switch (Amount9)
             {
                 case 0: // Cuboid
-                    baseY = selection.Height - (selection.Height - ly - ry - Amount1) / 2f;
+                    basePoint.Y = selSize.Height - (selSize.Height - leftLengths.Height - rightLengths.Height - Amount1) / 2f;
                     break;
                 case 1: // Pyramid
-                    float pyraHeight = Math.Max(ly / 2 + ry / 2 + Amount1, ry + ly);
-                    baseY = selection.Height - (selection.Height - pyraHeight) / 2f;
+                    float pyraHeight = Math.Max(leftLengths.Height / 2 + rightLengths.Height / 2 + Amount1, rightLengths.Height + leftLengths.Height);
+                    basePoint.Y = selSize.Height - (selSize.Height - pyraHeight) / 2f;
                     break;
                 default:
-                    baseY = selection.Height - (selection.Height - ly - ry - Amount1) / 2f;
+                    basePoint.Y = selSize.Height - (selSize.Height - leftLengths.Height - rightLengths.Height - Amount1) / 2f;
                     break;
             }
 
             // Offsets
-            baseX = (float)(baseX + baseX * Amount6.First);
-            baseY = (float)(baseY + baseY * Amount6.Second);
-
+            basePoint.X = (float)(basePoint.X + basePoint.X * Amount6.First);
+            basePoint.Y = (float)(basePoint.Y + basePoint.Y * Amount6.Second);
 
             // Define Vertices Points
-            PointF frontBottom = new PointF(baseX, baseY);
-            PointF frontTop = new PointF(baseX, baseY - Amount1);
+            PointF frontBottom = new PointF(basePoint.X, basePoint.Y);
+            PointF frontTop = new PointF(basePoint.X, basePoint.Y - Amount1);
 
-            PointF leftBottom = new PointF(baseX - lx, baseY - ly);
-            PointF leftTop = new PointF(baseX - lx, baseY - Amount1 - ly);
+            PointF leftBottom = new PointF(basePoint.X - leftLengths.Width, basePoint.Y - leftLengths.Height);
+            PointF leftTop = new PointF(basePoint.X - leftLengths.Width, basePoint.Y - Amount1 - leftLengths.Height);
 
-            PointF rightBottom = new PointF(baseX + rx, baseY - ry);
-            PointF rightTop = new PointF(baseX + rx, baseY - Amount1 - ry);
+            PointF rightBottom = new PointF(basePoint.X + rightLengths.Width, basePoint.Y - rightLengths.Height);
+            PointF rightTop = new PointF(basePoint.X + rightLengths.Width, basePoint.Y - Amount1 - rightLengths.Height);
 
-            PointF backBottom = new PointF(baseX - lx + rx, baseY - ry - ly);
-            PointF backTop = new PointF(baseX - lx + rx, baseY - Amount1 - ry - ly);
+            PointF backBottom = new PointF(basePoint.X - leftLengths.Width + rightLengths.Width, basePoint.Y - rightLengths.Height - leftLengths.Height);
+            PointF backTop = new PointF(basePoint.X - leftLengths.Width + rightLengths.Width, basePoint.Y - Amount1 - rightLengths.Height - leftLengths.Height);
 
-            PointF baseCenterBottom = new PointF(baseX - lx / 2 + rx / 2, baseY - ly / 2 - ry / 2);
-            PointF baseCenterTop = new PointF(baseX - lx / 2 + rx / 2, baseY - ly / 2 - ry / 2 - Amount1);
+            PointF baseCenterBottom = new PointF(basePoint.X - leftLengths.Width / 2 + rightLengths.Width / 2, basePoint.Y - leftLengths.Height / 2 - rightLengths.Height / 2);
+            PointF baseCenterTop = new PointF(basePoint.X - leftLengths.Width / 2 + rightLengths.Width / 2, basePoint.Y - leftLengths.Height / 2 - rightLengths.Height / 2 - Amount1);
 
             // Drawing Resources
-            Bitmap cuboidBitmap = new Bitmap(selection.Width, selection.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            Bitmap cuboidBitmap = new Bitmap(selSize.Width, selSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             Graphics cuboidGraphics = Graphics.FromImage(cuboidBitmap);
             cuboidGraphics.SmoothingMode = Amount12 ? SmoothingMode.AntiAlias : SmoothingMode.None;
 
-            Pen cuboidPen = new Pen(Amount8, Amount7);
-            cuboidPen.StartCap = LineCap.Round;
-            cuboidPen.EndCap = LineCap.Round;
+            Pen cuboidPen = new Pen(Amount8, Amount7)
+            {
+                StartCap = LineCap.Round,
+                EndCap = LineCap.Round
+            };
 
-            Pen hiddenPen = new Pen(Amount8, Amount7);
-            hiddenPen.StartCap = LineCap.Round;
-            hiddenPen.EndCap = LineCap.Round;
-            hiddenPen.DashStyle = DashStyle.Dot;
+            Pen hiddenPen = new Pen(Amount8, Amount7)
+            {
+                StartCap = LineCap.Round,
+                EndCap = LineCap.Round,
+                DashStyle = DashStyle.Dot
+            };
 
             SolidBrush fillBrush = new SolidBrush(Color.Transparent);
 
@@ -280,14 +236,13 @@ namespace IsometricCuboidEffect
             HsvColor fillColorLighter = fillColorBase;
             fillColorLighter.Saturation = 33;
 
-
             // Shapes
             switch (Amount9)
             {
                 case 0: // Cuboid
 
                     // Fill Type
-                    switch (Amount10) 
+                    switch (Amount10)
                     {
                         case 0: // None
                             break;
@@ -313,7 +268,7 @@ namespace IsometricCuboidEffect
                     }
 
                     // Edge Outlines
-                    if (Amount7 != 0) 
+                    if (Amount7 != 0)
                     {
                         cuboidGraphics.DrawLine(cuboidPen, frontTop, frontBottom);
                         cuboidGraphics.DrawLine(cuboidPen, leftTop, frontTop);
@@ -333,23 +288,22 @@ namespace IsometricCuboidEffect
                             cuboidGraphics.DrawLine(hiddenPen, backBottom, backTop);
                         }
                     }
-                    //cuboidGraphics.DrawBeziers(cuboidPen, ellipseBottom);
 
                     break;
                 case 1: // Pyramid
 
-                    double xDis1 = lx / 2 + rx / 2;
-                    double yDis1 = ly / 2 + ry / 2 + Amount1 - ly;
+                    double xDis1 = leftLengths.Width / 2 + rightLengths.Width / 2;
+                    double yDis1 = leftLengths.Height / 2 + rightLengths.Height / 2 + Amount1 - leftLengths.Height;
                     double helperLength1 = Math.Sqrt(Math.Pow(xDis1, 2) + Math.Pow(yDis1, 2));
                     double helperAngle1 = 180 / Math.PI * Math.Asin(yDis1 / helperLength1);
 
-                    double xDis2 = lx / 2 + rx / 2;
-                    double yDis2 = ly / 2 + ry / 2 + Amount1 - ry;
+                    double xDis2 = leftLengths.Width / 2 + rightLengths.Width / 2;
+                    double yDis2 = leftLengths.Height / 2 + rightLengths.Height / 2 + Amount1 - rightLengths.Height;
                     double helperLength2 = Math.Sqrt(Math.Pow(xDis2, 2) + Math.Pow(yDis2, 2));
                     double helperAngle2 = 180 / Math.PI * Math.Asin(yDis2 / helperLength2);
 
-                    double xDis3 = rx - lx / 2 - rx / 2;
-                    double yDis3 = ly / 2 + ry / 2 + Amount1 - ry - ly;
+                    double xDis3 = rightLengths.Width - leftLengths.Width / 2 - rightLengths.Width / 2;
+                    double yDis3 = leftLengths.Height / 2 + rightLengths.Height / 2 + Amount1 - rightLengths.Height - leftLengths.Height;
                     double helperLength3 = Math.Sqrt(Math.Pow(xDis3, 2) + Math.Pow(yDis3, 2));
                     double helperAngle3 = 180 / Math.PI * Math.Asin(yDis3 / helperLength3);
 
@@ -412,7 +366,6 @@ namespace IsometricCuboidEffect
                         cuboidGraphics.DrawLine(cuboidPen, baseCenterTop, leftBottom);
                         cuboidGraphics.DrawLine(cuboidPen, baseCenterTop, rightBottom);
 
-
                         if (helperAngle1 < 30)
                             cuboidGraphics.DrawLine(cuboidPen, backBottom, leftBottom);
                         else if (Amount4)
@@ -438,86 +391,86 @@ namespace IsometricCuboidEffect
 
             if (Amount5)
             {
-                int objectWidth = (int)(lx + rx);
+                int objectWidth = (int)(leftLengths.Width + rightLengths.Width);
                 int objectHeight;
                 switch (Amount9)
                 {
                     case 0:
-                        objectHeight = (int)(ly + ry + Amount1);
+                        objectHeight = (int)(leftLengths.Height + rightLengths.Height + Amount1);
                         break;
                     case 1:
-                        objectHeight = (int)Math.Max(ly / 2 + ry / 2 + Amount1, ry + ly);
+                        objectHeight = (int)Math.Max(leftLengths.Height / 2 + rightLengths.Height / 2 + Amount1, rightLengths.Height + leftLengths.Height);
                         break;
                     default:
-                        objectHeight = (int)(ly + ry + Amount1);
+                        objectHeight = (int)(leftLengths.Height + rightLengths.Height + Amount1);
                         break;
                 }
 
                 cuboidGraphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-                Pen dimPen = new Pen(Color.Red, 1);
-                dimPen.StartCap = LineCap.ArrowAnchor;
-                dimPen.EndCap = LineCap.ArrowAnchor;
+                Pen dimPen = new Pen(Color.Red, 1)
+                {
+                    StartCap = LineCap.ArrowAnchor,
+                    EndCap = LineCap.ArrowAnchor
+                };
 
-                PointF heightTop = new PointF(baseX - lx - 10, baseY - objectHeight);
-                PointF heightBottom = new PointF(baseX - lx - 10, baseY);
+                PointF heightTop = new PointF(basePoint.X - leftLengths.Width - 10, basePoint.Y - objectHeight);
+                PointF heightBottom = new PointF(basePoint.X - leftLengths.Width - 10, basePoint.Y);
                 cuboidGraphics.DrawLine(dimPen, heightTop, heightBottom);
 
-                PointF widthLeft = new PointF(baseX - lx, baseY - objectHeight - 10);
-                PointF widthRight = new PointF(baseX + rx, baseY - objectHeight - 10);
+                PointF widthLeft = new PointF(basePoint.X - leftLengths.Width, basePoint.Y - objectHeight - 10);
+                PointF widthRight = new PointF(basePoint.X + rightLengths.Width, basePoint.Y - objectHeight - 10);
                 cuboidGraphics.DrawLine(dimPen, widthLeft, widthRight);
 
                 dimPen.Dispose();
 
                 cuboidGraphics.TextRenderingHint = TextRenderingHint.AntiAlias;
 
-                StringFormat dimFormat = new StringFormat();
-                dimFormat.Alignment = StringAlignment.Center;
+                StringFormat dimFormat = new StringFormat
+                {
+                    Alignment = StringAlignment.Center
+                };
 
                 using (SolidBrush fontBrush = new SolidBrush(Color.Red))
                 using (Font font = new Font(new FontFamily("Arial"), 14))
                 {
-                    cuboidGraphics.DrawString(objectWidth.ToString() + "px", font, fontBrush, baseX - lx + objectWidth / 2, baseY - objectHeight - 40, dimFormat);
-                    cuboidGraphics.DrawString(objectHeight.ToString() + "px", font, fontBrush, baseX - lx - 50, baseY - objectHeight / 2, dimFormat);
+                    cuboidGraphics.DrawString(objectWidth.ToString() + "px", font, fontBrush, basePoint.X - leftLengths.Width + objectWidth / 2, basePoint.Y - objectHeight - 40, dimFormat);
+                    cuboidGraphics.DrawString(objectHeight.ToString() + "px", font, fontBrush, basePoint.X - leftLengths.Width - 50, basePoint.Y - objectHeight / 2, dimFormat);
                 }
             }
-
 
             cuboidSurface = Surface.CopyFromBitmap(cuboidBitmap);
             cuboidBitmap.Dispose();
 
-
             base.OnSetRenderInfo(newToken, dstArgs, srcArgs);
         }
 
-        protected override void OnRender(Rectangle[] rois, int startIndex, int length)
+        protected override void OnRender(Rectangle[] renderRects, int startIndex, int length)
         {
             if (length == 0) return;
             for (int i = startIndex; i < startIndex + length; ++i)
             {
-                Render(DstArgs.Surface, SrcArgs.Surface, rois[i]);
+                Render(DstArgs.Surface, SrcArgs.Surface, renderRects[i]);
             }
         }
 
-        #region CodeLab
-        int Amount1 = 175; // [0,1000] Height
-        int Amount2 = 150; // [0,1000] Left
-        int Amount3 = 200; // [0,1000] Right
-        bool Amount4 = false; // [0,1] Draw Back Edges
-        bool Amount5 = false; // [0,1] Draw Perspective Dimensions
-        Pair<double, double> Amount6 = Pair.Create(0.0, 0.0); // Offset
-        int Amount7 = 2; // Line Width
-        ColorBgra Amount8 = ColorBgra.FromBgr(0, 0, 0); // Line Color
-        byte Amount9 = 0; // Shape|Cuboid|Pyramid
-        byte Amount10 = 0; // Fill|None|Solid|Shaded
-        ColorBgra Amount11 = ColorBgra.FromBgr(0, 0, 0); // Fill Color
-        bool Amount12 = true; // [0,1] Anti-aliasing
-        #endregion
+        private int Amount1 = 175; // [0,1000] Height
+        private int Amount2 = 150; // [0,1000] Left
+        private int Amount3 = 200; // [0,1000] Right
+        private bool Amount4 = false; // [0,1] Draw Back Edges
+        private bool Amount5 = false; // [0,1] Draw Perspective Dimensions
+        private Pair<double, double> Amount6 = Pair.Create(0.0, 0.0); // Offset
+        private int Amount7 = 2; // Line Width
+        private ColorBgra Amount8 = ColorBgra.FromBgr(0, 0, 0); // Line Color
+        private byte Amount9 = 0; // Shape|Cuboid|Pyramid
+        private byte Amount10 = 0; // Fill|None|Solid|Shaded
+        private ColorBgra Amount11 = ColorBgra.FromBgr(0, 0, 0); // Fill Color
+        private bool Amount12 = true; // [0,1] Anti-aliasing
 
-        Surface cuboidSurface;
-        readonly BinaryPixelOp normalOp = LayerBlendModeUtil.CreateCompositionOp(LayerBlendMode.Normal);
+        private Surface cuboidSurface;
+        private readonly BinaryPixelOp normalOp = LayerBlendModeUtil.CreateCompositionOp(LayerBlendMode.Normal);
 
-        void Render(Surface dst, Surface src, Rectangle rect)
+        private void Render(Surface dst, Surface src, Rectangle rect)
         {
             Rectangle selection = EnvironmentParameters.GetSelection(src.Bounds).GetBoundsInt();
             ColorBgra sourcePixel, cuboidPixel;
