@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("isometric|cube|cuboid")]
 [assembly: AssemblyCompany("toe_head2001")]
 [assembly: AssemblyProduct("Isometric Cuboid")]
-[assembly: AssemblyCopyright("Copyright © toe_head2001")]
+[assembly: AssemblyCopyright("Copyright © 2018 toe_head2001")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
