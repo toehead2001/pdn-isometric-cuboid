@@ -32,56 +32,56 @@ namespace IsometricCuboidEffect
 
         private enum PropertyNames
         {
-            Amount1,
-            Amount2,
-            Amount3,
-            Amount4,
-            Amount5,
-            Amount6,
-            Amount7,
-            Amount8,
-            Amount9,
-            Amount10,
-            Amount11,
-            Amount12
+            Height,
+            Width,
+            Length,
+            DrawHiddenEdges,
+            DrawFootprint,
+            CuboidPosition,
+            EdgeOutlineWidth,
+            EdgeOutlineColor,
+            Shape,
+            FillStyle,
+            FillColor,
+            AntiAlias
         }
 
-        private enum Amount9Options
+        private enum Shape
         {
-            Amount9Option1,
-            Amount9Option2
+            Cuboid,
+            Pyramid
         }
 
-        private enum Amount10Options
+        private enum FillStyle
         {
-            Amount10Option1,
-            Amount10Option2,
-            Amount10Option3
+            None,
+            Solid,
+            Shaded
         }
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
             List<Property> props = new List<Property>
             {
-                new Int32Property(PropertyNames.Amount1, 175, 0, 1000),
-                new Int32Property(PropertyNames.Amount2, 150, 0, 1000),
-                new Int32Property(PropertyNames.Amount3, 200, 0, 1000),
-                new BooleanProperty(PropertyNames.Amount5, false),
-                StaticListChoiceProperty.CreateForEnum<Amount9Options>(PropertyNames.Amount9, 0, false),
-                new Int32Property(PropertyNames.Amount7, 2, 0, 10),
-                new BooleanProperty(PropertyNames.Amount4, false),
-                new Int32Property(PropertyNames.Amount8, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.PrimaryColor.B, EnvironmentParameters.PrimaryColor.G, EnvironmentParameters.PrimaryColor.R, 255)), 0, 0xffffff),
-                StaticListChoiceProperty.CreateForEnum<Amount10Options>(PropertyNames.Amount10, 0, false),
-                new Int32Property(PropertyNames.Amount11, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.SecondaryColor.B, EnvironmentParameters.SecondaryColor.G, EnvironmentParameters.SecondaryColor.R, 255)), 0, 0xffffff),
-                new DoubleVectorProperty(PropertyNames.Amount6, Pair.Create(0.0, 0.0), Pair.Create(-1.0, -1.0), Pair.Create(+1.0, +1.0)),
-                new BooleanProperty(PropertyNames.Amount12, true)
+                new Int32Property(PropertyNames.Height, 175, 0, 1000),
+                new Int32Property(PropertyNames.Width, 150, 0, 1000),
+                new Int32Property(PropertyNames.Length, 200, 0, 1000),
+                new BooleanProperty(PropertyNames.DrawFootprint, false),
+                StaticListChoiceProperty.CreateForEnum<Shape>(PropertyNames.Shape, 0, false),
+                new Int32Property(PropertyNames.EdgeOutlineWidth, 2, 0, 10),
+                new BooleanProperty(PropertyNames.DrawHiddenEdges, false),
+                new Int32Property(PropertyNames.EdgeOutlineColor, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.PrimaryColor.B, EnvironmentParameters.PrimaryColor.G, EnvironmentParameters.PrimaryColor.R, 255)), 0, 0xffffff),
+                StaticListChoiceProperty.CreateForEnum<FillStyle>(PropertyNames.FillStyle, 0, false),
+                new Int32Property(PropertyNames.FillColor, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.SecondaryColor.B, EnvironmentParameters.SecondaryColor.G, EnvironmentParameters.SecondaryColor.R, 255)), 0, 0xffffff),
+                new DoubleVectorProperty(PropertyNames.CuboidPosition, Pair.Create(0.0, 0.0), Pair.Create(-1.0, -1.0), Pair.Create(+1.0, +1.0)),
+                new BooleanProperty(PropertyNames.AntiAlias, true)
             };
 
             List<PropertyCollectionRule> propRules = new List<PropertyCollectionRule>
             {
-                new ReadOnlyBoundToValueRule<object, StaticListChoiceProperty>(PropertyNames.Amount11, PropertyNames.Amount10, Amount10Options.Amount10Option1, false),
-                new ReadOnlyBoundToValueRule<int, Int32Property>(PropertyNames.Amount8, PropertyNames.Amount7, 0, false),
-                new ReadOnlyBoundToValueRule<int, Int32Property>(PropertyNames.Amount4, PropertyNames.Amount7, 0, false)
+                new ReadOnlyBoundToValueRule<object, StaticListChoiceProperty>(PropertyNames.FillColor, PropertyNames.FillStyle, FillStyle.Amount10Option1, false),
+                new ReadOnlyBoundToValueRule<int, Int32Property>(PropertyNames.EdgeOutlineColor, PropertyNames.EdgeOutlineWidth, 0, false),
+                new ReadOnlyBoundToValueRule<int, Int32Property>(PropertyNames.DrawHiddenEdges, PropertyNames.EdgeOutlineWidth, 0, false)
             };
 
             return new PropertyCollection(props, propRules);
@@ -91,58 +91,58 @@ namespace IsometricCuboidEffect
         {
             ControlInfo configUI = CreateDefaultConfigUI(props);
 
-            configUI.SetPropertyControlValue(PropertyNames.Amount1, ControlInfoPropertyNames.DisplayName, "Height");
-            configUI.SetPropertyControlValue(PropertyNames.Amount2, ControlInfoPropertyNames.DisplayName, "Width");
-            configUI.SetPropertyControlValue(PropertyNames.Amount3, ControlInfoPropertyNames.DisplayName, "Length");
-            configUI.SetPropertyControlValue(PropertyNames.Amount4, ControlInfoPropertyNames.DisplayName, string.Empty);
-            configUI.SetPropertyControlValue(PropertyNames.Amount4, ControlInfoPropertyNames.Description, "Draw Hidden Edges");
-            configUI.SetPropertyControlValue(PropertyNames.Amount5, ControlInfoPropertyNames.DisplayName, string.Empty);
-            configUI.SetPropertyControlValue(PropertyNames.Amount5, ControlInfoPropertyNames.Description, "Draw dimensions of cuboid's footprint");
-            configUI.SetPropertyControlValue(PropertyNames.Amount6, ControlInfoPropertyNames.DisplayName, "Cuboid Position");
-            configUI.SetPropertyControlValue(PropertyNames.Amount6, ControlInfoPropertyNames.SliderSmallChangeX, 0.05);
-            configUI.SetPropertyControlValue(PropertyNames.Amount6, ControlInfoPropertyNames.SliderLargeChangeX, 0.25);
-            configUI.SetPropertyControlValue(PropertyNames.Amount6, ControlInfoPropertyNames.UpDownIncrementX, 0.01);
-            configUI.SetPropertyControlValue(PropertyNames.Amount6, ControlInfoPropertyNames.SliderSmallChangeY, 0.05);
-            configUI.SetPropertyControlValue(PropertyNames.Amount6, ControlInfoPropertyNames.SliderLargeChangeY, 0.25);
-            configUI.SetPropertyControlValue(PropertyNames.Amount6, ControlInfoPropertyNames.UpDownIncrementY, 0.01);
-            configUI.SetPropertyControlValue(PropertyNames.Amount6, ControlInfoPropertyNames.DecimalPlaces, 3);
-            Rectangle selection6 = EnvironmentParameters.GetSelection(EnvironmentParameters.SourceSurface.Bounds).GetBoundsInt();
-            ImageResource imageResource6 = ImageResource.FromImage(EnvironmentParameters.SourceSurface.CreateAliasedBitmap(selection6));
-            configUI.SetPropertyControlValue(PropertyNames.Amount6, ControlInfoPropertyNames.StaticImageUnderlay, imageResource6);
-            configUI.SetPropertyControlValue(PropertyNames.Amount7, ControlInfoPropertyNames.DisplayName, "Edge Outline Width");
-            configUI.SetPropertyControlValue(PropertyNames.Amount8, ControlInfoPropertyNames.DisplayName, "Edge Outline Color");
-            configUI.SetPropertyControlType(PropertyNames.Amount8, PropertyControlType.ColorWheel);
-            configUI.SetPropertyControlValue(PropertyNames.Amount9, ControlInfoPropertyNames.DisplayName, "Shape");
-            PropertyControlInfo Amount9Control = configUI.FindControlForPropertyName(PropertyNames.Amount9);
-            Amount9Control.SetValueDisplayName(Amount9Options.Amount9Option1, "Cuboid");
-            Amount9Control.SetValueDisplayName(Amount9Options.Amount9Option2, "Pyramid");
-            configUI.SetPropertyControlValue(PropertyNames.Amount10, ControlInfoPropertyNames.DisplayName, "Fill Style");
-            PropertyControlInfo Amount10Control = configUI.FindControlForPropertyName(PropertyNames.Amount10);
-            Amount10Control.SetValueDisplayName(Amount10Options.Amount10Option1, "None");
-            Amount10Control.SetValueDisplayName(Amount10Options.Amount10Option2, "Solid");
-            Amount10Control.SetValueDisplayName(Amount10Options.Amount10Option3, "Shaded");
-            configUI.SetPropertyControlValue(PropertyNames.Amount11, ControlInfoPropertyNames.DisplayName, "Fill Color");
-            configUI.SetPropertyControlType(PropertyNames.Amount11, PropertyControlType.ColorWheel);
-            configUI.SetPropertyControlValue(PropertyNames.Amount12, ControlInfoPropertyNames.DisplayName, "Misc");
-            configUI.SetPropertyControlValue(PropertyNames.Amount12, ControlInfoPropertyNames.Description, "Anti-aliasing");
+            configUI.SetPropertyControlValue(PropertyNames.Height, ControlInfoPropertyNames.DisplayName, "Height");
+            configUI.SetPropertyControlValue(PropertyNames.Width, ControlInfoPropertyNames.DisplayName, "Width");
+            configUI.SetPropertyControlValue(PropertyNames.Length, ControlInfoPropertyNames.DisplayName, "Length");
+            configUI.SetPropertyControlValue(PropertyNames.DrawHiddenEdges, ControlInfoPropertyNames.DisplayName, string.Empty);
+            configUI.SetPropertyControlValue(PropertyNames.DrawHiddenEdges, ControlInfoPropertyNames.Description, "Draw Hidden Edges");
+            configUI.SetPropertyControlValue(PropertyNames.DrawFootprint, ControlInfoPropertyNames.DisplayName, string.Empty);
+            configUI.SetPropertyControlValue(PropertyNames.DrawFootprint, ControlInfoPropertyNames.Description, "Draw dimensions of cuboid's footprint");
+            configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.DisplayName, "Cuboid Position");
+            configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.SliderSmallChangeX, 0.05);
+            configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.SliderLargeChangeX, 0.25);
+            configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.UpDownIncrementX, 0.01);
+            configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.SliderSmallChangeY, 0.05);
+            configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.SliderLargeChangeY, 0.25);
+            configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.UpDownIncrementY, 0.01);
+            configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.DecimalPlaces, 3);
+            Rectangle selRect = EnvironmentParameters.GetSelection(EnvironmentParameters.SourceSurface.Bounds).GetBoundsInt();
+            ImageResource selImage = ImageResource.FromImage(EnvironmentParameters.SourceSurface.CreateAliasedBitmap(selRect));
+            configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.StaticImageUnderlay, selImage);
+            configUI.SetPropertyControlValue(PropertyNames.EdgeOutlineWidth, ControlInfoPropertyNames.DisplayName, "Edge Outline Width");
+            configUI.SetPropertyControlValue(PropertyNames.EdgeOutlineColor, ControlInfoPropertyNames.DisplayName, "Edge Outline Color");
+            configUI.SetPropertyControlType(PropertyNames.EdgeOutlineColor, PropertyControlType.ColorWheel);
+            configUI.SetPropertyControlValue(PropertyNames.Shape, ControlInfoPropertyNames.DisplayName, "Shape");
+            PropertyControlInfo Amount9Control = configUI.FindControlForPropertyName(PropertyNames.Shape);
+            Amount9Control.SetValueDisplayName(Shape.Cuboid, "Cuboid");
+            Amount9Control.SetValueDisplayName(Shape.Pyramid, "Pyramid");
+            configUI.SetPropertyControlValue(PropertyNames.FillStyle, ControlInfoPropertyNames.DisplayName, "Fill Style");
+            PropertyControlInfo Amount10Control = configUI.FindControlForPropertyName(PropertyNames.FillStyle);
+            Amount10Control.SetValueDisplayName(FillStyle.None, "None");
+            Amount10Control.SetValueDisplayName(FillStyle.Solid, "Solid");
+            Amount10Control.SetValueDisplayName(FillStyle.Shaded, "Shaded");
+            configUI.SetPropertyControlValue(PropertyNames.FillColor, ControlInfoPropertyNames.DisplayName, "Fill Color");
+            configUI.SetPropertyControlType(PropertyNames.FillColor, PropertyControlType.ColorWheel);
+            configUI.SetPropertyControlValue(PropertyNames.AntiAlias, ControlInfoPropertyNames.DisplayName, "Misc");
+            configUI.SetPropertyControlValue(PropertyNames.AntiAlias, ControlInfoPropertyNames.Description, "Anti-aliasing");
 
             return configUI;
         }
 
         protected override void OnSetRenderInfo(PropertyBasedEffectConfigToken newToken, RenderArgs dstArgs, RenderArgs srcArgs)
         {
-            Amount1 = newToken.GetProperty<Int32Property>(PropertyNames.Amount1).Value;
-            Amount2 = newToken.GetProperty<Int32Property>(PropertyNames.Amount2).Value;
-            Amount3 = newToken.GetProperty<Int32Property>(PropertyNames.Amount3).Value;
-            Amount4 = newToken.GetProperty<BooleanProperty>(PropertyNames.Amount4).Value;
-            Amount5 = newToken.GetProperty<BooleanProperty>(PropertyNames.Amount5).Value;
-            Amount6 = newToken.GetProperty<DoubleVectorProperty>(PropertyNames.Amount6).Value;
-            Amount7 = newToken.GetProperty<Int32Property>(PropertyNames.Amount7).Value;
-            Amount8 = ColorBgra.FromOpaqueInt32(newToken.GetProperty<Int32Property>(PropertyNames.Amount8).Value);
-            Amount9 = (byte)((int)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.Amount9).Value);
-            Amount10 = (byte)((int)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.Amount10).Value);
-            Amount11 = ColorBgra.FromOpaqueInt32(newToken.GetProperty<Int32Property>(PropertyNames.Amount11).Value);
-            Amount12 = newToken.GetProperty<BooleanProperty>(PropertyNames.Amount12).Value;
+            Amount1 = newToken.GetProperty<Int32Property>(PropertyNames.Height).Value;
+            Amount2 = newToken.GetProperty<Int32Property>(PropertyNames.Width).Value;
+            Amount3 = newToken.GetProperty<Int32Property>(PropertyNames.Length).Value;
+            Amount4 = newToken.GetProperty<BooleanProperty>(PropertyNames.DrawHiddenEdges).Value;
+            Amount5 = newToken.GetProperty<BooleanProperty>(PropertyNames.DrawFootprint).Value;
+            Amount6 = newToken.GetProperty<DoubleVectorProperty>(PropertyNames.CuboidPosition).Value;
+            Amount7 = newToken.GetProperty<Int32Property>(PropertyNames.EdgeOutlineWidth).Value;
+            Amount8 = ColorBgra.FromOpaqueInt32(newToken.GetProperty<Int32Property>(PropertyNames.EdgeOutlineColor).Value);
+            Amount9 = (Shape)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.Shape).Value;
+            Amount10 = (FillStyle)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.FillStyle).Value;
+            Amount11 = ColorBgra.FromOpaqueInt32(newToken.GetProperty<Int32Property>(PropertyNames.FillColor).Value);
+            Amount12 = newToken.GetProperty<BooleanProperty>(PropertyNames.AntiAlias).Value;
 
             Size selSize = EnvironmentParameters.GetSelection(srcArgs.Surface.Bounds).GetBoundsInt().Size;
             float centerX = selSize.Width / 2f;
@@ -170,13 +170,11 @@ namespace IsometricCuboidEffect
             };
             switch (Amount9)
             {
-                case 0: // Cuboid
-                    basePoint.Y = selSize.Height - (selSize.Height - leftLengths.Height - rightLengths.Height - Amount1) / 2f;
-                    break;
-                case 1: // Pyramid
+                case Shape.Pyramid:
                     float pyraHeight = Math.Max(leftLengths.Height / 2 + rightLengths.Height / 2 + Amount1, rightLengths.Height + leftLengths.Height);
                     basePoint.Y = selSize.Height - (selSize.Height - pyraHeight) / 2f;
                     break;
+                case Shape.Cuboid:
                 default:
                     basePoint.Y = selSize.Height - (selSize.Height - leftLengths.Height - rightLengths.Height - Amount1) / 2f;
                     break;
@@ -239,20 +237,20 @@ namespace IsometricCuboidEffect
             // Shapes
             switch (Amount9)
             {
-                case 0: // Cuboid
+                case Shape.Cuboid:
 
                     // Fill Type
                     switch (Amount10)
                     {
-                        case 0: // None
+                        case FillStyle.None:
                             break;
-                        case 1: // Solid
+                        case FillStyle.Solid:
                             fillBrush.Color = fillColorSolid;
 
                             PointF[] solidFillPoints = { frontBottom, leftBottom, leftTop, backTop, rightTop, rightBottom };
                             cuboidGraphics.FillPolygon(fillBrush, solidFillPoints);
                             break;
-                        case 2: // Shaded
+                        case FillStyle.Shaded:
                             fillBrush.Color = fillColorLight.ToColor();
                             PointF[] topFillPoints = { frontTop, leftTop, backTop, rightTop };
                             cuboidGraphics.FillPolygon(fillBrush, topFillPoints);
@@ -290,7 +288,7 @@ namespace IsometricCuboidEffect
                     }
 
                     break;
-                case 1: // Pyramid
+                case Shape.Pyramid:
 
                     double xDis1 = leftLengths.Width / 2 + rightLengths.Width / 2;
                     double yDis1 = leftLengths.Height / 2 + rightLengths.Height / 2 + Amount1 - leftLengths.Height;
@@ -310,9 +308,9 @@ namespace IsometricCuboidEffect
                     // Fill Type
                     switch (Amount10)
                     {
-                        case 0: // None
+                        case FillStyle.None:
                             break;
-                        case 1: // Solid
+                        case FillStyle.Solid:
                             fillBrush.Color = fillColorSolid;
 
                             PointF[] solidFillPoints = { frontBottom, leftBottom, baseCenterTop, rightBottom };
@@ -331,7 +329,7 @@ namespace IsometricCuboidEffect
                             }
 
                             break;
-                        case 2: // Shaded
+                        case FillStyle.Shaded:
                             fillBrush.Color = fillColorBase.ToColor();
                             PointF[] leftFrontFillPoints = { frontBottom, leftBottom, baseCenterTop };
                             cuboidGraphics.FillPolygon(fillBrush, leftFrontFillPoints);
@@ -395,12 +393,10 @@ namespace IsometricCuboidEffect
                 int objectHeight;
                 switch (Amount9)
                 {
-                    case 0:
-                        objectHeight = (int)(leftLengths.Height + rightLengths.Height + Amount1);
-                        break;
-                    case 1:
+                    case Shape.Pyramid:
                         objectHeight = (int)Math.Max(leftLengths.Height / 2 + rightLengths.Height / 2 + Amount1, rightLengths.Height + leftLengths.Height);
                         break;
+                    case Shape.Cuboid:
                     default:
                         objectHeight = (int)(leftLengths.Height + rightLengths.Height + Amount1);
                         break;
@@ -462,8 +458,8 @@ namespace IsometricCuboidEffect
         private Pair<double, double> Amount6 = Pair.Create(0.0, 0.0); // Offset
         private int Amount7 = 2; // Line Width
         private ColorBgra Amount8 = ColorBgra.FromBgr(0, 0, 0); // Line Color
-        private byte Amount9 = 0; // Shape|Cuboid|Pyramid
-        private byte Amount10 = 0; // Fill|None|Solid|Shaded
+        private Shape Amount9 = 0; // Shape|Cuboid|Pyramid
+        private FillStyle Amount10 = 0; // Fill|None|Solid|Shaded
         private ColorBgra Amount11 = ColorBgra.FromBgr(0, 0, 0); // Fill Color
         private bool Amount12 = true; // [0,1] Anti-aliasing
 
