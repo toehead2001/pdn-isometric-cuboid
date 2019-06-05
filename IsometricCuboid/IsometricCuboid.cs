@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Drawing.Text;
-using System.Collections.Generic;
 using PaintDotNet;
 using PaintDotNet.Effects;
 using PaintDotNet.IndirectUI;
@@ -26,7 +25,7 @@ namespace IsometricCuboidEffect
         private static readonly Image StaticIcon = new Bitmap(typeof(IsometricCuboidEffectPlugin), "IsometricCuboid.png");
 
         public IsometricCuboidEffectPlugin()
-            : base("Isometric Cuboid", StaticIcon, SubmenuNames.Render, EffectFlags.Configurable)
+            : base("Isometric Cuboid", StaticIcon, SubmenuNames.Render, new EffectOptions { Flags = EffectFlags.Configurable })
         {
         }
 
