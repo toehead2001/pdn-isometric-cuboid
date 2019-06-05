@@ -61,7 +61,7 @@ namespace IsometricCuboidEffect
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>
+            Property[] props = new Property[]
             {
                 new Int32Property(PropertyNames.Height, 175, 0, 1000),
                 new Int32Property(PropertyNames.Width, 150, 0, 1000),
@@ -77,7 +77,7 @@ namespace IsometricCuboidEffect
                 new BooleanProperty(PropertyNames.AntiAlias, true)
             };
 
-            List<PropertyCollectionRule> propRules = new List<PropertyCollectionRule>
+            PropertyCollectionRule[] propRules = new PropertyCollectionRule[]
             {
                 new ReadOnlyBoundToValueRule<object, StaticListChoiceProperty>(PropertyNames.FillColor, PropertyNames.FillStyle, FillStyle.None, false),
                 new ReadOnlyBoundToValueRule<int, Int32Property>(PropertyNames.EdgeOutlineColor, PropertyNames.EdgeOutlineWidth, 0, false),
