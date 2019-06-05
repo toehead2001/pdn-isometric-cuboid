@@ -79,7 +79,7 @@ namespace IsometricCuboidEffect
 
             List<PropertyCollectionRule> propRules = new List<PropertyCollectionRule>
             {
-                new ReadOnlyBoundToValueRule<object, StaticListChoiceProperty>(PropertyNames.FillColor, PropertyNames.FillStyle, FillStyle.Amount10Option1, false),
+                new ReadOnlyBoundToValueRule<object, StaticListChoiceProperty>(PropertyNames.FillColor, PropertyNames.FillStyle, FillStyle.None, false),
                 new ReadOnlyBoundToValueRule<int, Int32Property>(PropertyNames.EdgeOutlineColor, PropertyNames.EdgeOutlineWidth, 0, false),
                 new ReadOnlyBoundToValueRule<int, Int32Property>(PropertyNames.DrawHiddenEdges, PropertyNames.EdgeOutlineWidth, 0, false)
             };
