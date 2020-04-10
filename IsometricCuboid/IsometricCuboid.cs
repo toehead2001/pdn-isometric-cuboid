@@ -105,7 +105,7 @@ namespace IsometricCuboidEffect
             configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.SliderLargeChangeY, 0.25);
             configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.UpDownIncrementY, 0.01);
             configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.DecimalPlaces, 3);
-            Rectangle selRect = EnvironmentParameters.GetSelection(EnvironmentParameters.SourceSurface.Bounds).GetBoundsInt();
+            Rectangle selRect = EnvironmentParameters.SelectionBounds;
             ImageResource selImage = ImageResource.FromImage(EnvironmentParameters.SourceSurface.CreateAliasedBitmap(selRect));
             configUI.SetPropertyControlValue(PropertyNames.CuboidPosition, ControlInfoPropertyNames.StaticImageUnderlay, selImage);
             configUI.SetPropertyControlValue(PropertyNames.EdgeOutlineWidth, ControlInfoPropertyNames.DisplayName, "Edge Outline Width");
@@ -143,7 +143,7 @@ namespace IsometricCuboidEffect
             Amount11 = ColorBgra.FromOpaqueInt32(newToken.GetProperty<Int32Property>(PropertyNames.FillColor).Value);
             Amount12 = newToken.GetProperty<BooleanProperty>(PropertyNames.AntiAlias).Value;
 
-            Size selSize = EnvironmentParameters.GetSelection(srcArgs.Surface.Bounds).GetBoundsInt().Size;
+            Size selSize = EnvironmentParameters.SelectionBounds.Size;
             float centerX = selSize.Width / 2f;
 
             // Convert degrees into radians
@@ -467,7 +467,7 @@ namespace IsometricCuboidEffect
 
         private void Render(Surface dst, Surface src, Rectangle rect)
         {
-            Rectangle selection = EnvironmentParameters.GetSelection(src.Bounds).GetBoundsInt();
+            Rectangle selection = EnvironmentParameters.SelectionBounds;
             ColorBgra sourcePixel, cuboidPixel;
 
             for (int y = rect.Top; y < rect.Bottom; y++)
